@@ -10,6 +10,9 @@ targets:
     authlete:
         target: python
         source: Authlete API Explorer
+        publish:
+            pypi:
+                token: $pypi_token
         codeSamples:
             registry:
                 location: registry.speakeasyapi.dev/vartana/qwerty/authlete-api-explorer-python-code-samples
