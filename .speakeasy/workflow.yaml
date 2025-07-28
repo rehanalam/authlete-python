@@ -3,7 +3,7 @@ speakeasyVersion: latest
 sources:
     Authlete API Explorer:
         inputs:
-            - location: openapi.yaml
+            - location: https://raw.githubusercontent.com/rehanalam/authlete-api-spec/refs/heads/main/openapi-spec.json
         registry:
             location: registry.speakeasyapi.dev/vartana/qwerty/authlete-api-explorer
 targets:
