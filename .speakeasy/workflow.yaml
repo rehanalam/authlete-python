@@ -1,0 +1,18 @@
+workflowVersion: 1.0.0
+speakeasyVersion: latest
+sources:
+    Authlete API Explorer:
+        inputs:
+            - location: openapi.yaml
+        registry:
+            location: registry.speakeasyapi.dev/vartana/qwerty/authlete-api-explorer
+targets:
+    authlete:
+        target: python
+        source: Authlete API Explorer
+        codeSamples:
+            registry:
+                location: registry.speakeasyapi.dev/vartana/qwerty/authlete-api-explorer-python-code-samples
+            labelOverride:
+                fixedValue: Python (SDK)
+            blocking: false
