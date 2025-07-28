@@ -116,7 +116,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.store.get_order_by_id(order_id=614993)
+    res = a_client.store.get_order_by_id(order_id=728529)
 
     # Handle response
     print(res)
@@ -158,7 +158,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.store.delete_order(order_id=127902)
+    res = a_client.store.delete_order(order_id=690575)
 
     # Handle response
     print(res)

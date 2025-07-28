@@ -204,7 +204,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.user.get_user_by_name(username="Zachery_Lubowitz15")
+    res = a_client.user.get_user_by_name(username="Edyth10")
 
     # Handle response
     print(res)
@@ -288,7 +288,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.user.delete_user(username="Demetris_Schmitt")
+    res = a_client.user.delete_user(username="Rita_Schuppe")
 
     # Handle response
     print(res)

@@ -68,7 +68,7 @@ The SDK can be installed with either *pip* or *poetry* package managers.
 *PIP* is the default package installer for Python, enabling easy installation and management of packages from PyPI via the command line.
 
 ```bash
-pip install git+<UNSET>.git
+pip install git+https://github.com/rehanalam/authlete-python.git
 ```
 
 ### Poetry
@@ -76,7 +76,7 @@ pip install git+<UNSET>.git
 *Poetry* is a modern tool that simplifies dependency management and package publishing by using a single `pyproject.toml` file to handle project metadata and dependencies.
 
 ```bash
-poetry add git+<UNSET>.git
+poetry add git+https://github.com/rehanalam/authlete-python.git
 ```
 
 ### Shell and script usage with `uv`
@@ -137,8 +137,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -164,8 +163,7 @@ async def main():
     ) as a_client:
 
         res = await a_client.pet.update_pet_async(name="doggie", photo_urls=[
-            "<value>",
-            "<value>",
+            "<value 1>",
         ], id=10, category={
             "id": 1,
             "name": "Dogs",
@@ -200,8 +198,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -269,7 +266,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.upload_file(pet_id=565380)
+    res = a_client.pet.upload_file(pet_id=150516)
 
     # Handle response
     print(res)
@@ -294,8 +291,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -320,8 +316,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -336,28 +331,18 @@ with Authlete(
 <!-- Start Error Handling [errors] -->
 ## Error Handling
 
-Handling errors in this SDK should largely match your expectations. All operations return a response object or raise an exception.
+[`AuthleteError`](./src/authlete/errors/authleteerror.py) is the base class for all HTTP error responses. It has the following properties:
 
-By default, an API error will raise a errors.APIError exception, which has the following properties:
-
-| Property        | Type             | Description           |
-|-----------------|------------------|-----------------------|
-| `.status_code`  | *int*            | The HTTP status code  |
-| `.message`      | *str*            | The error message     |
-| `.raw_response` | *httpx.Response* | The raw HTTP response |
-| `.body`         | *str*            | The response content  |
-
-When custom error responses are specified for an operation, the SDK may also raise their associated exceptions. You can refer to respective *Errors* tables in SDK docs for more details on possible exception types for each operation. For example, the `update_pet_async` method may raise the following exceptions:
-
-| Error Type                  | Status Code | Content Type     |
-| --------------------------- | ----------- | ---------------- |
-| errors.APIErrorInvalidInput | 400         | application/json |
-| errors.APIErrorUnauthorized | 401         | application/json |
-| errors.APIErrorNotFound     | 404         | application/json |
-| errors.APIError             | 4XX, 5XX    | \*/\*            |
+| Property           | Type             | Description                                                                             |
+| ------------------ | ---------------- | --------------------------------------------------------------------------------------- |
+| `err.message`      | `str`            | Error message                                                                           |
+| `err.status_code`  | `int`            | HTTP response status code eg `404`                                                      |
+| `err.headers`      | `httpx.Headers`  | HTTP response headers                                                                   |
+| `err.body`         | `str`            | HTTP body. Can be empty string if no body is returned.                                  |
+| `err.raw_response` | `httpx.Response` | Raw HTTP response                                                                       |
+| `err.data`         |                  | Optional. Some errors may contain structured data. [See Error Classes](#error-classes). |
 
 ### Example
-
 ```python
 from authlete import Authlete, errors
 import os
@@ -370,8 +355,7 @@ with Authlete(
     try:
 
         res = a_client.pet.update_pet(name="doggie", photo_urls=[
-            "<value>",
-            "<value>",
+            "<value 1>",
         ], id=10, category={
             "id": 1,
             "name": "Dogs",
@@ -380,19 +364,44 @@ with Authlete(
         # Handle response
         print(res)
 
-    except errors.APIErrorInvalidInput as e:
-        # handle e.data: errors.APIErrorInvalidInputData
-        raise(e)
-    except errors.APIErrorUnauthorized as e:
-        # handle e.data: errors.APIErrorUnauthorizedData
-        raise(e)
-    except errors.APIErrorNotFound as e:
-        # handle e.data: errors.APIErrorNotFoundData
-        raise(e)
-    except errors.APIError as e:
-        # handle exception
-        raise(e)
+
+    except errors.AuthleteError as e:
+        # The base class for HTTP error responses
+        print(e.message)
+        print(e.status_code)
+        print(e.body)
+        print(e.headers)
+        print(e.raw_response)
+
+        # Depending on the method different errors may be thrown
+        if isinstance(e, errors.APIErrorInvalidInput):
+            print(e.data.status)  # int
+            print(e.data.error)  # str
 ```
+
+### Error Classes
+**Primary error:**
+* [`AuthleteError`](./src/authlete/errors/authleteerror.py): The base class for HTTP error responses.
+
+<details><summary>Less common errors (8)</summary>
+
+<br />
+
+**Network errors:**
+* [`httpx.RequestError`](https://www.python-httpx.org/exceptions/#httpx.RequestError): Base class for request errors.
+    * [`httpx.ConnectError`](https://www.python-httpx.org/exceptions/#httpx.ConnectError): HTTP client was unable to make a request to a server.
+    * [`httpx.TimeoutException`](https://www.python-httpx.org/exceptions/#httpx.TimeoutException): HTTP request timed out.
+
+
+**Inherit from [`AuthleteError`](./src/authlete/errors/authleteerror.py)**:
+* [`APIErrorUnauthorized`](./src/authlete/errors/apierrorunauthorized.py): Unauthorized error. Status code `401`. Applicable to 12 of 18 methods.*
+* [`APIErrorNotFound`](./src/authlete/errors/apierrornotfound.py): Not Found error. Status code `404`. Applicable to 12 of 18 methods.*
+* [`APIErrorInvalidInput`](./src/authlete/errors/apierrorinvalidinput.py): Not Found error. Status code `400`. Applicable to 10 of 18 methods.*
+* [`ResponseValidationError`](./src/authlete/errors/responsevalidationerror.py): Type mismatch between the response data and the expected Pydantic model. Provides access to the Pydantic validation error via the `cause` attribute.
+
+</details>
+
+\* Check [the method documentation](#available-resources-and-operations) to see if the error is applicable.
 <!-- End Error Handling [errors] -->
 
 <!-- Start Server Selection [server] -->
@@ -419,8 +428,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -445,8 +453,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",

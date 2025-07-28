@@ -34,8 +34,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -87,7 +86,9 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.add_pet(name="doggie", photo_urls=[
-        "<value>",
+        "<value 1>",
+        "<value 2>",
+        "<value 3>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -127,7 +128,7 @@ Multiple status values can be provided with comma separated strings
 ### Example Usage
 
 ```python
-from authlete import Authlete
+from authlete import Authlete, models
 import os
 
 
@@ -135,7 +136,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.find_pets_by_status()
+    res = a_client.pet.find_pets_by_status(status=models.FindPetsByStatusStatus.AVAILABLE)
 
     # Handle response
     print(res)
@@ -219,7 +220,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.get_pet_by_id(pet_id=504151)
+    res = a_client.pet.get_pet_by_id(pet_id=311674)
 
     # Handle response
     print(res)
@@ -261,7 +262,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.delete_pet(pet_id=441876)
+    res = a_client.pet.delete_pet(pet_id=818965)
 
     # Handle response
     print(res)
@@ -304,7 +305,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.upload_file(pet_id=565380)
+    res = a_client.pet.upload_file(pet_id=150516)
 
     # Handle response
     print(res)

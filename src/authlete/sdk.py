@@ -7,13 +7,16 @@ from .utils.logger import Logger, get_default_logger
 from .utils.retries import RetryConfig
 from authlete import models, utils
 from authlete._hooks import SDKHooks
-from authlete.pet_sdk import PetSDK
-from authlete.store import Store
 from authlete.types import OptionalNullable, UNSET
-from authlete.user_sdk import UserSDK
 import httpx
-from typing import Any, Callable, Dict, List, Optional, Union, cast
+import importlib
+from typing import Any, Callable, Dict, List, Optional, TYPE_CHECKING, Union, cast
 import weakref
+
+if TYPE_CHECKING:
+    from authlete.pet_sdk import PetSDK
+    from authlete.store import Store
+    from authlete.user_sdk import UserSDK
 
 
 class Authlete(BaseSDK):
@@ -26,16 +29,21 @@ class Authlete(BaseSDK):
     http://swagger.io - Find out more about Swagger
     """
 
-    pet: PetSDK
+    pet: "PetSDK"
     r"""Everything about your Pets
     http://swagger.io - Find out more
     """
-    store: Store
+    store: "Store"
     r"""Access to Petstore orders
     http://swagger.io - Find out more about our store
     """
-    user: UserSDK
+    user: "UserSDK"
     r"""Operations about user"""
+    _sub_sdk_map = {
+        "pet": ("authlete.pet_sdk", "PetSDK"),
+        "store": ("authlete.store", "Store"),
+        "user": ("authlete.user_sdk", "UserSDK"),
+    }
 
     def __init__(
         self,
@@ -118,15 +126,15 @@ class Authlete(BaseSDK):
 
         hooks = SDKHooks()
 
+        # pylint: disable=protected-access
+        self.sdk_configuration.__dict__["_hooks"] = hooks
+
         current_server_url, *_ = self.sdk_configuration.get_server_details()
         server_url, self.sdk_configuration.client = hooks.sdk_init(
             current_server_url, client
         )
         if current_server_url != server_url:
             self.sdk_configuration.server_url = server_url
-
-        # pylint: disable=protected-access
-        self.sdk_configuration.__dict__["_hooks"] = hooks
 
         weakref.finalize(
             self,
@@ -138,12 +146,32 @@ class Authlete(BaseSDK):
             self.sdk_configuration.async_client_supplied,
         )
 
-        self._init_sdks()
+    def __getattr__(self, name: str):
+        if name in self._sub_sdk_map:
+            module_path, class_name = self._sub_sdk_map[name]
+            try:
+                module = importlib.import_module(module_path)
+                klass = getattr(module, class_name)
+                instance = klass(self.sdk_configuration)
+                setattr(self, name, instance)
+                return instance
+            except ImportError as e:
+                raise AttributeError(
+                    f"Failed to import module {module_path} for attribute {name}: {e}"
+                ) from e
+            except AttributeError as e:
+                raise AttributeError(
+                    f"Failed to find class {class_name} in module {module_path} for attribute {name}: {e}"
+                ) from e
 
-    def _init_sdks(self):
-        self.pet = PetSDK(self.sdk_configuration)
-        self.store = Store(self.sdk_configuration)
-        self.user = UserSDK(self.sdk_configuration)
+        raise AttributeError(
+            f"'{type(self).__name__}' object has no attribute '{name}'"
+        )
+
+    def __dir__(self):
+        default_attrs = list(super().__dir__())
+        lazy_attrs = list(self._sub_sdk_map.keys())
+        return sorted(list(set(default_attrs + lazy_attrs)))
 
     def __enter__(self):
         return self
