@@ -21,6 +21,7 @@ This can only be done by the logged in user.
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="createUser" method="post" path="/user" -->
 ```python
 from authlete import Authlete
 import os
@@ -69,6 +70,7 @@ Creates list of users with given input array
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="createUsersWithListInput" method="post" path="/user/createWithList" -->
 ```python
 from authlete import Authlete
 import os
@@ -119,6 +121,7 @@ Logs user into the system
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="loginUser" method="get" path="/user/login" -->
 ```python
 from authlete import Authlete
 import os
@@ -162,6 +165,7 @@ Logs out current logged in user session
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="logoutUser" method="get" path="/user/logout" -->
 ```python
 from authlete import Authlete
 import os
@@ -195,6 +199,7 @@ Get user by user name
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="getUserByName" method="get" path="/user/{username}" -->
 ```python
 from authlete import Authlete
 import os
@@ -204,7 +209,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.user.get_user_by_name(username="Zachery_Lubowitz15")
+    res = a_client.user.get_user_by_name(username="Edyth10")
 
     # Handle response
     print(res)
@@ -237,6 +242,7 @@ This can only be done by the logged in user.
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="updateUser" method="put" path="/user/{username}" -->
 ```python
 from authlete import Authlete
 import os
@@ -279,6 +285,7 @@ This can only be done by the logged in user.
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="deleteUser" method="delete" path="/user/{username}" -->
 ```python
 from authlete import Authlete
 import os
@@ -288,7 +295,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.user.delete_user(username="Demetris_Schmitt")
+    res = a_client.user.delete_user(username="Rita_Schuppe")
 
     # Handle response
     print(res)
