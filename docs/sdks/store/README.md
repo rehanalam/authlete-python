@@ -21,6 +21,7 @@ Returns a map of status codes to quantities
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="getInventory" method="get" path="/store/inventory" -->
 ```python
 from authlete import Authlete
 import os
@@ -61,6 +62,7 @@ Place a new order in the store
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="placeOrder" method="post" path="/store/order" -->
 ```python
 from authlete import Authlete, models
 import os
@@ -107,6 +109,7 @@ For valid response try integer IDs with value <= 5 or > 10. Other values will ge
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="getOrderById" method="get" path="/store/order/{orderId}" -->
 ```python
 from authlete import Authlete
 import os
@@ -116,7 +119,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.store.get_order_by_id(order_id=614993)
+    res = a_client.store.get_order_by_id(order_id=728529)
 
     # Handle response
     print(res)
@@ -149,6 +152,7 @@ For valid response try integer IDs with value < 1000. Anything above 1000 or non
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="deleteOrder" method="delete" path="/store/order/{orderId}" -->
 ```python
 from authlete import Authlete
 import os
@@ -158,7 +162,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.store.delete_order(order_id=127902)
+    res = a_client.store.delete_order(order_id=690575)
 
     # Handle response
     print(res)

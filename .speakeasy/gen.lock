@@ -3,15 +3,18 @@ id: 7ee747f7-2488-444f-b4ce-ed4b61dcccf3
 management:
   docChecksum: 03e3387365ae18c7ce07d32543a62956
   docVersion: 1.0.0
-  speakeasyVersion: 1.545.0
-  generationVersion: 2.599.0
-  releaseVersion: 0.0.1
-  configChecksum: a63cdb3954f58484a441a84358910432
+  speakeasyVersion: 1.596.0
+  generationVersion: 2.672.0
+  releaseVersion: 0.1.0
+  configChecksum: ad20f9b2a81050e4bf450f8c7bd09f29
+  repoURL: https://github.com/rehanalam/authlete-python.git
+  installationURL: https://github.com/rehanalam/authlete-python.git
+  published: true
 features:
   python:
     additionalDependencies: 1.0.0
     constsAndDefaults: 1.0.5
-    core: 5.18.0
+    core: 5.19.6
     defaultEnabledRetries: 0.2.0
     devContainers: 3.0.0
     enumUnions: 0.1.0
@@ -25,14 +28,13 @@ features:
     methodArguments: 1.0.2
     responseFormat: 1.0.1
     retries: 3.0.2
-    sdkHooks: 1.0.1
+    sdkHooks: 1.1.0
     uploadStreams: 1.0.0
 generatedFiles:
   - .devcontainer/README.md
   - .devcontainer/devcontainer.json
   - .devcontainer/setup.sh
   - .gitattributes
-  - .python-version
   - .vscode/settings.json
   - USAGE.md
   - docs/errors/apierrorinvalidinput.md
@@ -82,6 +84,9 @@ generatedFiles:
   - src/authlete/errors/apierrorinvalidinput.py
   - src/authlete/errors/apierrornotfound.py
   - src/authlete/errors/apierrorunauthorized.py
+  - src/authlete/errors/authleteerror.py
+  - src/authlete/errors/no_response_error.py
+  - src/authlete/errors/responsevalidationerror.py
   - src/authlete/httpclient.py
   - src/authlete/models/__init__.py
   - src/authlete/models/apiresponse.py
@@ -124,16 +129,17 @@ generatedFiles:
   - src/authlete/utils/retries.py
   - src/authlete/utils/security.py
   - src/authlete/utils/serializers.py
+  - src/authlete/utils/unmarshal_json_response.py
   - src/authlete/utils/url.py
   - src/authlete/utils/values.py
 examples:
   updatePet:
     speakeasy-default-update-pet:
       requestBody:
-        application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>", "<value>"]}
+        application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value 1>"]}
       responses:
         "200":
-          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>"]}
+          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}
         "400":
           application/json: {"status": 400, "error": "Bad request"}
         "401":
@@ -143,10 +149,10 @@ examples:
   addPet:
     speakeasy-default-add-pet:
       requestBody:
-        application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>"]}
+        application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value 1>", "<value 2>", "<value 3>"]}
       responses:
         "200":
-          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>"]}
+          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value 1>"]}
   findPetsByStatus:
     speakeasy-default-find-pets-by-status:
       parameters:
@@ -154,7 +160,7 @@ examples:
           status: "available"
       responses:
         "200":
-          application/json: [{"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}, {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>"]}, {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}]
+          application/json: [{"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value 1>", "<value 2>"]}]
         "400":
           application/json: {"status": 400, "error": "Bad request"}
         "401":
@@ -165,7 +171,7 @@ examples:
     speakeasy-default-find-pets-by-tags:
       responses:
         "200":
-          application/json: [{"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>", "<value>", "<value>"]}]
+          application/json: [{"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}]
         "400":
           application/json: {"status": 400, "error": "Bad request"}
         "401":
@@ -176,10 +182,10 @@ examples:
     speakeasy-default-get-pet-by-id:
       parameters:
         path:
-          petId: 504151
+          petId: 311674
       responses:
         "200":
-          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}
+          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value 1>"]}
         "400":
           application/json: {"status": 400, "error": "Bad request"}
         "401":
@@ -190,11 +196,10 @@ examples:
     speakeasy-default-delete-pet:
       parameters:
         path:
-          petId: 441876
-        header: {}
+          petId: 818965
       responses:
         "200":
-          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": ["<value>"]}
+          application/json: {"id": 10, "name": "doggie", "category": {"id": 1, "name": "Dogs"}, "photoUrls": []}
         "400":
           application/json: {"status": 400, "error": "Bad request"}
         "401":
@@ -205,8 +210,7 @@ examples:
     speakeasy-default-upload-file:
       parameters:
         path:
-          petId: 565380
-        query: {}
+          petId: 150516
       responses:
         "200":
           application/json: {}
@@ -214,7 +218,7 @@ examples:
     speakeasy-default-get-inventory:
       responses:
         "200":
-          application/json: {"key": 373538, "key1": 961069}
+          application/json: {"key": 111959, "key1": 333452, "key2": 973245}
         "401":
           application/json: {"status": 401, "error": "Unauthorized"}
         "404":
@@ -234,7 +238,7 @@ examples:
     speakeasy-default-get-order-by-id:
       parameters:
         path:
-          orderId: 614993
+          orderId: 728529
       responses:
         "200":
           application/json: {"id": 10, "petId": 198772, "quantity": 7, "status": "approved"}
@@ -248,7 +252,7 @@ examples:
     speakeasy-default-delete-order:
       parameters:
         path:
-          orderId: 127902
+          orderId: 690575
       responses:
         "200":
           application/json: {"id": 10, "petId": 198772, "quantity": 7, "status": "approved"}
@@ -288,7 +292,7 @@ examples:
     speakeasy-default-get-user-by-name:
       parameters:
         path:
-          username: "Zachery_Lubowitz15"
+          username: "Edyth10"
       responses:
         "200":
           application/json: {"id": 10, "username": "theUser", "firstName": "John", "lastName": "James", "email": "john@email.com", "password": "12345", "phone": "12345", "userStatus": 1}
@@ -309,7 +313,7 @@ examples:
     speakeasy-default-delete-user:
       parameters:
         path:
-          username: "Demetris_Schmitt"
+          username: "Rita_Schuppe"
       responses:
         "200":
           application/json: {"id": 10, "username": "theUser", "firstName": "John", "lastName": "James", "email": "john@email.com", "password": "12345", "phone": "12345", "userStatus": 1}
@@ -319,5 +323,5 @@ examples:
           application/json: {"status": 401, "error": "Unauthorized"}
         "404":
           application/json: {"status": 404, "error": "Not Found", "code": "object_not_found"}
-examplesVersion: 1.0.1
+examplesVersion: 1.0.2
 generatedTests: {}

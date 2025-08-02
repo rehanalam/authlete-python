@@ -24,6 +24,7 @@ Update an existing pet by Id
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="updatePet" method="put" path="/pet" -->
 ```python
 from authlete import Authlete
 import os
@@ -34,8 +35,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -77,6 +77,7 @@ Add a new pet to the store
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="addPet" method="post" path="/pet" -->
 ```python
 from authlete import Authlete
 import os
@@ -87,7 +88,9 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.add_pet(name="doggie", photo_urls=[
-        "<value>",
+        "<value 1>",
+        "<value 2>",
+        "<value 3>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -126,8 +129,9 @@ Multiple status values can be provided with comma separated strings
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="findPetsByStatus" method="get" path="/pet/findByStatus" -->
 ```python
-from authlete import Authlete
+from authlete import Authlete, models
 import os
 
 
@@ -135,7 +139,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.find_pets_by_status()
+    res = a_client.pet.find_pets_by_status(status=models.FindPetsByStatusStatus.AVAILABLE)
 
     # Handle response
     print(res)
@@ -168,6 +172,7 @@ Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="findPetsByTags" method="get" path="/pet/findByTags" -->
 ```python
 from authlete import Authlete
 import os
@@ -210,6 +215,7 @@ Returns a single pet
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="getPetById" method="get" path="/pet/{petId}" -->
 ```python
 from authlete import Authlete
 import os
@@ -219,7 +225,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.get_pet_by_id(pet_id=504151)
+    res = a_client.pet.get_pet_by_id(pet_id=311674)
 
     # Handle response
     print(res)
@@ -252,6 +258,7 @@ Deletes a pet
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="deletePet" method="delete" path="/pet/{petId}" -->
 ```python
 from authlete import Authlete
 import os
@@ -261,7 +268,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.delete_pet(pet_id=441876)
+    res = a_client.pet.delete_pet(pet_id=818965)
 
     # Handle response
     print(res)
@@ -295,6 +302,7 @@ uploads an image
 
 ### Example Usage
 
+<!-- UsageSnippet language="python" operationID="uploadFile" method="post" path="/pet/{petId}/uploadImage" -->
 ```python
 from authlete import Authlete
 import os
@@ -304,7 +312,7 @@ with Authlete(
     api_key=os.getenv("AUTHLETE_API_KEY", ""),
 ) as a_client:
 
-    res = a_client.pet.upload_file(pet_id=565380)
+    res = a_client.pet.upload_file(pet_id=150516)
 
     # Handle response
     print(res)

@@ -10,8 +10,7 @@ with Authlete(
 ) as a_client:
 
     res = a_client.pet.update_pet(name="doggie", photo_urls=[
-        "<value>",
-        "<value>",
+        "<value 1>",
     ], id=10, category={
         "id": 1,
         "name": "Dogs",
@@ -37,8 +36,7 @@ async def main():
     ) as a_client:
 
         res = await a_client.pet.update_pet_async(name="doggie", photo_urls=[
-            "<value>",
-            "<value>",
+            "<value 1>",
         ], id=10, category={
             "id": 1,
             "name": "Dogs",

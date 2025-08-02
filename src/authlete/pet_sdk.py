@@ -5,6 +5,7 @@ from authlete import errors, models, utils
 from authlete._hooks import HookContext
 from authlete.types import OptionalNullable, UNSET
 from authlete.utils import get_security_from_env
+from authlete.utils.unmarshal_json_response import unmarshal_json_response
 import io
 from typing import Any, IO, List, Mapping, Optional, Union
 
@@ -91,6 +92,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="updatePet",
                 oauth2_scopes=[],
@@ -105,41 +107,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def update_pet_async(
         self,
@@ -218,6 +209,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="updatePet",
                 oauth2_scopes=[],
@@ -232,41 +224,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def add_pet(
         self,
@@ -345,6 +326,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="addPet",
                 oauth2_scopes=[],
@@ -358,26 +340,15 @@ class PetSDK(BaseSDK):
         )
 
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, ["405", "4XX"], "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def add_pet_async(
         self,
@@ -456,6 +427,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="addPet",
                 oauth2_scopes=[],
@@ -469,26 +441,15 @@ class PetSDK(BaseSDK):
         )
 
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, ["405", "4XX"], "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def find_pets_by_status(
         self,
@@ -551,6 +512,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="findPetsByStatus",
                 oauth2_scopes=[],
@@ -565,41 +527,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, List[models.Pet])
+            return unmarshal_json_response(List[models.Pet], http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def find_pets_by_status_async(
         self,
@@ -662,6 +613,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="findPetsByStatus",
                 oauth2_scopes=[],
@@ -676,41 +628,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, List[models.Pet])
+            return unmarshal_json_response(List[models.Pet], http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def find_pets_by_tags(
         self,
@@ -771,6 +712,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="findPetsByTags",
                 oauth2_scopes=[],
@@ -785,41 +727,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, List[models.Pet])
+            return unmarshal_json_response(List[models.Pet], http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def find_pets_by_tags_async(
         self,
@@ -880,6 +811,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="findPetsByTags",
                 oauth2_scopes=[],
@@ -894,41 +826,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, List[models.Pet])
+            return unmarshal_json_response(List[models.Pet], http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def get_pet_by_id(
         self,
@@ -989,6 +910,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="getPetById",
                 oauth2_scopes=[],
@@ -1003,41 +925,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def get_pet_by_id_async(
         self,
@@ -1098,6 +1009,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="getPetById",
                 oauth2_scopes=[],
@@ -1112,41 +1024,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def delete_pet(
         self,
@@ -1208,6 +1109,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="deletePet",
                 oauth2_scopes=[],
@@ -1222,41 +1124,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def delete_pet_async(
         self,
@@ -1318,6 +1209,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="deletePet",
                 oauth2_scopes=[],
@@ -1332,41 +1224,30 @@ class PetSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.Pet)
+            return unmarshal_json_response(models.Pet, http_res)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorInvalidInputData
+            response_data = unmarshal_json_response(
+                errors.APIErrorInvalidInputData, http_res
             )
-            raise errors.APIErrorInvalidInput(data=response_data)
+            raise errors.APIErrorInvalidInput(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorUnauthorizedData
+            response_data = unmarshal_json_response(
+                errors.APIErrorUnauthorizedData, http_res
             )
-            raise errors.APIErrorUnauthorized(data=response_data)
+            raise errors.APIErrorUnauthorized(response_data, http_res)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = utils.unmarshal_json(
-                http_res.text, errors.APIErrorNotFoundData
+            response_data = unmarshal_json_response(
+                errors.APIErrorNotFoundData, http_res
             )
-            raise errors.APIErrorNotFound(data=response_data)
+            raise errors.APIErrorNotFound(response_data, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     def upload_file(
         self,
@@ -1438,6 +1319,7 @@ class PetSDK(BaseSDK):
 
         http_res = self.do_request(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="uploadFile",
                 oauth2_scopes=[],
@@ -1451,26 +1333,15 @@ class PetSDK(BaseSDK):
         )
 
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.APIResponse)
+            return unmarshal_json_response(models.APIResponse, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = utils.stream_to_text(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
 
     async def upload_file_async(
         self,
@@ -1542,6 +1413,7 @@ class PetSDK(BaseSDK):
 
         http_res = await self.do_request_async(
             hook_ctx=HookContext(
+                config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="uploadFile",
                 oauth2_scopes=[],
@@ -1555,23 +1427,12 @@ class PetSDK(BaseSDK):
         )
 
         if utils.match_response(http_res, "200", "application/json"):
-            return utils.unmarshal_json(http_res.text, models.APIResponse)
+            return unmarshal_json_response(models.APIResponse, http_res)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError(
-                "API error occurred", http_res.status_code, http_res_text, http_res
-            )
+            raise errors.APIError("API error occurred", http_res, http_res_text)
 
-        content_type = http_res.headers.get("Content-Type")
-        http_res_text = await utils.stream_to_text_async(http_res)
-        raise errors.APIError(
-            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
-            http_res.status_code,
-            http_res_text,
-            http_res,
-        )
+        raise errors.APIError("Unexpected response received", http_res)
